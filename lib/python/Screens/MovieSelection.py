@@ -39,6 +39,12 @@ import time
 import cPickle as pickle
 
 config.movielist = ConfigSubsection()
+config.movielist.column_order = ConfigSelection(default="iptdl", choices=[
+	("iptdl", "icon/progress, picon, title, date, length"),
+	("pitdl", "picon, icon/progress, title, date, length"),
+	("ptdli", "picon, title, date, length, icon/progress"),
+	("itd", "icon/progress, title, date"),
+	("td", "title, date")])
 config.movielist.curentlyplayingservice = ConfigText()
 config.movielist.show_live_tv_in_movielist = ConfigYesNo(default=True)
 config.movielist.fontsize = ConfigSelectionNumber(default = 0, stepwidth = 1, min = -8, max = 10, wraparound = True)
@@ -280,10 +286,12 @@ class MovieBrowserConfiguration(ConfigListScreen,Screen):
 					 getConfigListEntry(_("Sort Trash by deletion time"), config.usage.trashsort_deltime, _("Use the deletion time to sort Trash directories.\nMost recently deleted at the top.")),
 					 getConfigListEntry(_("Show extended description"), self.cfg.description, _("Show or hide the extended description, (skin dependant).")),
 					 getConfigListEntry(_("Use individual settings for each directory"), config.movielist.settings_per_directory, _("When set, each directory will show the previous state used. When off, the default values will be shown.")),
+					 getConfigListEntry(_("Behavior when a movie reaches the end"), config.usage.on_movie_eof, _("On reaching the end of a file during playback, you can choose the box's behavior.")),
 					 getConfigListEntry(_("Stop service on return to movie list"), config.movielist.stop_service, _("Stop previous broadcasted service on return to movie list.")),
 					 getConfigListEntry(_("Show status icons in movie list"), config.usage.show_icons_in_movielist, _("Shows the watched status of the movie."))]
 		if config.usage.show_icons_in_movielist.value != 'o':
 			self.list.append(getConfigListEntry(_("Show icon for new/unseen items"), config.usage.movielist_unseen, _("Shows the icons when new/unseen, otherwise it will not show an icon.")))
+		self.list.append(getConfigListEntry(_("Column Order"), config.movielist.column_order, _("Choose column order.")))
 		self.list.append(getConfigListEntry(_("Service Title mode"), config.usage.movielist_servicename_mode, _("Show picons in the movie list.")))
 		if "picon" in config.usage.movielist_servicename_mode.value:
 			self.list.append(getConfigListEntry(_("Picon Width"), config.usage.movielist_piconwidth, _(".")))
@@ -1271,7 +1279,9 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			seekable.seekRelative(direction, amount)
 
 	def playbackStop(self):
+		print "[MovieSelection] playbackStop"
 		if self.list.playInBackground:
+			print "[MovieSelection] bg"
 			self.list.playInBackground = None
 			from Screens.InfoBar import MoviePlayer
 			MoviePlayerInstance = MoviePlayer.instance
@@ -1284,6 +1294,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			self.filePlayingTimer.start(100)
 			return
 		elif self.list.playInForeground:
+			print "[MovieSelection] fg"
 			from Screens.InfoBar import MoviePlayer
 			MoviePlayerInstance = MoviePlayer.instance
 			if MoviePlayerInstance is not None:
@@ -1463,6 +1474,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		self.updateDescription()
 
 	def abort(self):
+		print "[MovieSelection] abort"
 		global playlist
 		del playlist[:]
 		if self.list.playInBackground:
