@@ -45,6 +45,7 @@ config.movielist.column_order = ConfigSelection(default="iptdl", choices=[
 	("ptdli", "picon, title, date, length, icon/progress"),
 	("itd", "icon/progress, title, date"),
 	("td", "title, date")])
+config.movielist.picon_width = ConfigSelectionNumber(default = 100, stepwidth = 1, min = 50, max = 500, wraparound = True)
 config.movielist.curentlyplayingservice = ConfigText()
 config.movielist.show_live_tv_in_movielist = ConfigYesNo(default=True)
 config.movielist.fontsize = ConfigSelectionNumber(default = 0, stepwidth = 1, min = -8, max = 10, wraparound = True)
@@ -288,14 +289,12 @@ class MovieBrowserConfiguration(ConfigListScreen,Screen):
 					 getConfigListEntry(_("Use individual settings for each directory"), config.movielist.settings_per_directory, _("When set, each directory will show the previous state used. When off, the default values will be shown.")),
 					 getConfigListEntry(_("Behavior when a movie reaches the end"), config.usage.on_movie_eof, _("On reaching the end of a file during playback, you can choose the box's behavior.")),
 					 getConfigListEntry(_("Stop service on return to movie list"), config.movielist.stop_service, _("Stop previous broadcasted service on return to movie list.")),
-					 getConfigListEntry(_("Show status icons in movie list"), config.usage.show_icons_in_movielist, _("Shows the watched status of the movie."))]
-		if config.usage.show_icons_in_movielist.value != 'o':
+					 getConfigListEntry(_("Column Order"), config.movielist.column_order, _("Choose column order."))]
+		if config.movielist.column_order.value.find("i") != -1:
+			self.list.append(getConfigListEntry(_("Show status icons"), config.usage.show_icons_in_movielist, _("Shows the watched status of the movie.")))
 			self.list.append(getConfigListEntry(_("Show icon for new/unseen items"), config.usage.movielist_unseen, _("Shows the icons when new/unseen, otherwise it will not show an icon.")))
-		self.list.append(getConfigListEntry(_("Column Order"), config.movielist.column_order, _("Choose column order.")))
-		self.list.append(getConfigListEntry(_("Service Title mode"), config.usage.movielist_servicename_mode, _("Show picons in the movie list.")))
-		if "picon" in config.usage.movielist_servicename_mode.value:
-			self.list.append(getConfigListEntry(_("Picon Width"), config.usage.movielist_piconwidth, _(".")))
-		self.list.append(getConfigListEntry(_("Show movie lengths in movie list"), config.usage.load_length_of_movies_in_moviellist, _("When enabled, the length of each recording will be shown in the movielist (this might cause some additional loading time).")))
+		if config.movielist.column_order.value.find("p") != -1:
+			self.list.append(getConfigListEntry(_("Picon Width"), config.movielist.picon_width, _("Set the width of the picon column.")))
 		self.list.append(getConfigListEntry(_("Play audio in background"), config.movielist.play_audio_internal, _("Keeps the movie list open whilst playing audio files.")))
 		self.list.append(getConfigListEntry(_("Root directory"), config.movielist.root, _("Sets the root directory of movie list, to remove the '..' from being shown in that folder.")))
 		self.list.append(getConfigListEntry(_("Hide known extensions"), config.movielist.hide_extensions, _("Allows you to hide the extensions of known file types.")))

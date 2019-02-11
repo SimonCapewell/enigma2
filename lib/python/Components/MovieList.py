@@ -50,10 +50,11 @@ def MultiContentEntryPixmapAlphaBlendCenter(pos = (0, 0), size = (0, 0), png = N
 cutsParser = struct.Struct('>QI') # big-endian, 64-bit PTS and 32-bit type
 
 class ColumnInfo:
-	def __init__(self, type, width, padding):
+	def __init__(self, type, width, paddingLeft, paddingRight):
 		self.type = type
 		self.width = width
-		self.padding = padding
+		self.paddingLeft = paddingLeft
+		self.paddingRight = paddingRight
 
 class MovieListData:
 	def __init__(self):
@@ -386,46 +387,46 @@ class MovieList(GUIComponent):
 		colstr = config.movielist.column_order.value
 
 		self.columns = []
-		
+		last = None
 		for s in colstr:
 			if s == 'i': # icon
 				width = self.iconsWidth
-				padding = self.spaceIconeText
+				paddingLeft = 0
+				paddingRight = self.spaceIconeText
 				if config.usage.show_icons_in_movielist.value == "p":
 					width = max(self.iconsWidth, self.pbarLargeWidth)
-					s = 'r'
-				if config.usage.show_icons_in_movielist.value == "s":
-					s = 's'
-				
+				if last in ('d', 'l'):
+					paddingLeft = paddingRight
+					paddingRight = 0
 			elif s == 'p': # picon
-				width = config.usage.movielist_piconwidth.value
-				padding = self.spaceIconeText
-			elif s == 't':
+				width = config.movielist.picon_width.value
+				paddingLeft = 0
+				paddingRight = self.spaceIconeText
+				if last in ('d', 'l'):
+					paddingLeft = paddingRight
+					paddingRight = 0
+			elif s == 't': # title
 				width = 0
-				padding = 0
-			elif s == 'd':
+				paddingLeft = paddingRight = 0
+			elif s == 'd': # date
 				width = self.dateWidth
 				if not config.movielist.use_fuzzy_dates.value:
 					width += 30
-				padding = 0
-			elif s == 'l':
+				paddingLeft = paddingRight = 0
+			elif s == 'l': # length
 				width = self.durationWidth
-				padding = 0
+				paddingLeft = paddingRight = 0
 			else:
 				width = None
 				print "[MovieList] unrecognised '%s' column setting" % s
 			if width is not None:
-				self.columns.append(ColumnInfo(s, width, padding))
+				self.columns.append(ColumnInfo(s, width, paddingLeft, paddingRight))
+				last = s
 
 	def buildMovieListEntry(self, serviceref, info, begin, data):
-		try:
-			return self.buildMovieListEntry2(serviceref, info, begin, data)
-		except Exception, e:
-			print e
-	
-	def buildMovieListEntry2(self, serviceref, info, begin, data):
 		switch = config.usage.show_icons_in_movielist.value
-
+		icons = config.movielist.column_order.value.find("i") != -1
+		picons = config.movielist.column_order.value.find("p") != -1
 		ih = self.itemHeight
 
 		pathName = serviceref.getPath()
@@ -447,19 +448,19 @@ class MovieList(GUIComponent):
 					txt = p[1]
 				(icon, shift, name, label) = (self.iconTrash, self.trashShift, _("Deleted items"), _("Trash can")) if txt == ".Trash" else (self.iconFolder, self.dirShift, txt, _("Directory"))
 				data.iconShift = shift
-				data.icon = icon
-				data.picon = icon
+				if icons and not picons:
+					data.icon = icon
+				elif picons:
+					data.picon = icon
 				data.txt = name
+				data.len = 0
 				data.label = label
 			else:
 				cur_idx = self.l.getCurrentSelectionIndex()
 				x = self.list[cur_idx] # x = ref,info,begin,...
-				if config.usage.load_length_of_movies_in_moviellist.value:
-					data.len = x[1].getLength(x[0]) #recalc the movie length...
-				else:
-					data.len = 0 #dont recalc movielist to speedup loading the list
 				self.list[cur_idx] = (x[0], x[1], x[2], data) #update entry in list... so next time we don't need to recalc
 				data.txt = info.getName(serviceref)
+				data.len = info.getLength(serviceref)
 				if config.movielist.hide_extensions.value:
 					fileName, fileExtension = os.path.splitext(data.txt)
 					if fileExtension in KNOWN_EXTENSIONS:
@@ -497,47 +498,33 @@ class MovieList(GUIComponent):
 								data.part = 100
 								data.partcol = self.pbarColour
 
-		def addProgress(type, x, colWidth):
-			# icon/progress
-			if data:
-				if type == 'i' and hasattr(data, 'icon') and data.icon is not None:
-					if self.partIconeShift:
-						res.append(MultiContentEntryPixmapAlphaBlend(pos=(x,data.iconShift), size=(self.iconsWidth,data.icon.size().height()), png=data.icon))
-					else:
-						res.append(MultiContentEntryPixmapAlphaBlendCenter(pos=(x,0), size=(colWidth,ih), png=data.icon))
+		def addIcon(x, colWidth):
+			if config.usage.show_icons_in_movielist in ('p', 's'):
+				if hasattr(data, 'part') and data.part > 0:
+					y = self.pbarShift or (ih-self.pbarHeight)/2
+					res.append(MultiContentEntryProgress(pos=(x,y), size=(colWidth, self.pbarHeight), percent=data.part, borderWidth=2, foreColor=data.partcol, foreColorSelected=None, backColor=None, backColorSelected=None))
+					return
+			if hasattr(data, 'icon') and data.icon is not None:
+				if data.iconShift:
+					res.append(MultiContentEntryPixmapAlphaBlend(pos=(x,data.iconShift), size=(self.iconsWidth,data.icon.size().height()), png=data.icon))
 				else:
-					if hasattr(data, 'part') and data.part > 0:
-						y = self.pbarShift or (ih-self.pbarHeight)/2
-						res.append(MultiContentEntryProgress(pos=(x,y), size=(colWidth, self.pbarHeight), percent=data.part, borderWidth=2, foreColor=data.partcol, foreColorSelected=None, backColor=None, backColorSelected=None))
-					elif hasattr(data, 'icon') and data.icon is not None:
-						if data.iconShift:
-							res.append(MultiContentEntryPixmapAlphaBlend(pos=(x,data.iconShift), size=(self.iconsWidth,data.icon.size().height()), png=data.icon))
-						else:
-							res.append(MultiContentEntryPixmapAlphaBlendCenter(pos=(x,0), size=(colWidth, ih), png=data.icon))
+					res.append(MultiContentEntryPixmapAlphaBlendCenter(pos=(x,0), size=(colWidth, ih), png=data.icon))
 
 		def addPicon(x, colWidth):
-			if not data:
-				return
-			if not hasattr(data, 'picon'):
-				if info:
-					sref = info.getInfoString(serviceref, iServiceInformation.sServiceref)
-					piconName = getPiconName(sref)
-					data.picon = LoadPixmap(piconName) if piconName != "" else None
-			
-			if hasattr(data, 'picon') and data.picon is not None:
-					res.append(MultiContentEntryPixmapAlphaBlendCenter(
-						pos = (x, 0), size = (colWidth, ih),
-						png = data.picon, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
+			picon = None
+			if hasattr(data, 'picon'):
+				picon = data.picon
+			elif info:
+				sref = info.getInfoString(serviceref, iServiceInformation.sServiceref)
+				piconName = getPiconName(sref)
+				picon = data.picon = LoadPixmap(piconName) if piconName != "" else None
+			if picon is not None:
+				res.append(MultiContentEntryPixmapAlphaBlendCenter(
+					pos = (x, 0), size = (colWidth, ih),
+					png = data.picon, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
 
 		def addTitle(x, colWidth):
 			res.append(MultiContentEntryText(pos=(x, 0), size=(colWidth, ih), font = 0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = data.txt))
-
-		def addLength(x, colWidth):
-			if data and hasattr(data, 'len'):
-				len = data.len
-				if len > 0:
-					len = ngettext("%d Min", "%d Mins", (len / 60)) % (len / 60)
-					res.append(MultiContentEntryText(pos=(x, 0), size=(colWidth, ih), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=len))
 
 		def addDate(x, colWidth):
 			text = None
@@ -551,27 +538,35 @@ class MovieList(GUIComponent):
 			if text is not None:
 				res.append(MultiContentEntryText(pos=(x, 0), size=(colWidth, ih), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=text))
 
+		def addLength(x, colWidth):
+			len = data.len
+			if len > 0:
+				text = ngettext("%d Min", "%d Mins", (len / 60)) % (len / 60)
+				res.append(MultiContentEntryText(pos=(x, 0), size=(colWidth, ih), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=text))
+
 		colX = self.spaceLeft
 		i = 0
 		for col in self.columns:
-			if col.type in ('r', 's', 'i'):
-				addProgress(col.type, colX, col.width)
+			colX += col.paddingLeft
+			if col.type == 'i':
+				addIcon(colX, col.width)
 			elif col.type == 'p':
 				addPicon(colX, col.width)
 			elif col.type == 't':
 				if col.width == 0:
-					# getItemSize isn't determined until the list has items, so we calculate it on first entry
-					# this ensures that the presence of a scrollbar is 
+					# getItemSize changes depending on scrollbar presence, which can't be determined until the list has items
+					# so we calculate the width of the title column on first paint. This ensures that the scrollbar is accounted for
 					remainingWidth = 0
 					for j in xrange(i+1, len(self.columns)):
-						remainingWidth += self.columns[j].width + self.columns[j].padding
-					col.width = self.l.getItemSize().width() - self.spaceRight - remainingWidth - col.padding - colX
+						c = self.columns[j]
+						remainingWidth += c.width + c.paddingLeft + c.paddingRight
+					col.width = self.l.getItemSize().width() - self.spaceRight - remainingWidth - col.paddingLeft - col.paddingRight - colX
 				addTitle(colX, col.width)
-			elif col.type == 'l':
-				addLength(colX, col.width)
 			elif col.type == 'd':
 				addDate(colX, col.width)
-			colX += col.width + col.padding
+			elif col.type == 'l':
+				addLength(colX, col.width)
+			colX += col.width + col.paddingRight
 			i += 1
 
 		return res
