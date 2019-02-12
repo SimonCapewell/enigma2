@@ -499,7 +499,7 @@ class MovieList(GUIComponent):
 								data.partcol = self.pbarColour
 
 		def addIcon(x, colWidth):
-			if config.usage.show_icons_in_movielist in ('p', 's'):
+			if switch in ('p', 's'):
 				if hasattr(data, 'part') and data.part > 0:
 					y = self.pbarShift or (ih-self.pbarHeight)/2
 					res.append(MultiContentEntryProgress(pos=(x,y), size=(colWidth, self.pbarHeight), percent=data.part, borderWidth=2, foreColor=data.partcol, foreColorSelected=None, backColor=None, backColorSelected=None))
