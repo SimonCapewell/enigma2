@@ -64,7 +64,7 @@ class EPGSelectionSingle(EPGSelectionBase, EPGServiceNumberSelection, EPGService
 	def refreshList(self, selectTime=None):
 		self.refreshTimer.stop()
 		service = self.getCurrentService()
-		self["Service"].newService(service.ref)
+		self["Service"].newService(service)
 		self.setTitle("%s - %s" % (self.getCurrentBouquetName(), service.getServiceName()))
 		index = self["list"].getCurrentIndex()
 		self["list"].fillEPG(service)
@@ -132,7 +132,7 @@ class EPGSelectionSingle(EPGSelectionBase, EPGServiceNumberSelection, EPGService
 		self.refreshList(self.timeFocus)
 		newEvent, service = list.getCurrent()
 		if oldEvent and newEvent and oldEvent.getEventId() == newEvent.getEventId():
-			if self.startRef and service and service.ref.toString() != self.startRef.toString():
+			if self.startRef and service and service.toString() != self.startRef.toString():
 				self.moveToService(self.startRef)
 
 	def forward24Hours(self):

@@ -120,7 +120,7 @@ class EPGListMulti(EPGListBase):
 		return self.listWidth, sely
 
 	def fillEPG(self, services, stime=None):
-		test = [(service.ref.toString(), 0, stime) for service in services]
+		test = [(service.toString(), 0, stime) for service in services]
 		test.insert(0, 'XRIBDTCn0')
 		self.list = self.queryEPG(test)
 		self.l.setList(self.list)
@@ -134,7 +134,7 @@ class EPGListMulti(EPGListBase):
 		self.filteredTimerList = {}
 		for x in timerList:
 			if x.end >= startTime:
-				service = ":".join(x.service_ref.ref.toString().split(':')[:11])
+				service = ":".join(x.service_ref.toString().split(':')[:11])
 				l = self.filteredTimerList.get(service)
 				if l is None:
 					self.filteredTimerList[service] = l = [x]

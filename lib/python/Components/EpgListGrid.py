@@ -786,7 +786,7 @@ class EPGListGrid(EPGListBase):
 		else:
 			self.selectedEventIndex = None
 			self.selectedService = None
-			test = [(service.ref.toString(), 0, self.timeBase, self.timeEpoch) for service in services]
+			test = [(service.toString(), 0, self.timeBase, self.timeEpoch) for service in services]
 			serviceList = services
 			piconIdx = 0
 			channelIdx = 0
@@ -828,7 +828,7 @@ class EPGListGrid(EPGListBase):
 		for timer in self.session.nav.RecordTimer.timer_list:
 			# repeat timers represent all their future repetitions, so always include them
 			if (startTime <= timer.end or timer.repeated) and timer.begin < endTime:
-				serviceref = timer.service_ref.ref.toCompareString()
+				serviceref = timer.service_ref.toCompareString()
 				l = self.filteredTimerList.get(serviceref)
 				if l is None:
 					self.filteredTimerList[serviceref] = l = [timer]
@@ -836,8 +836,8 @@ class EPGListGrid(EPGListBase):
 					l.append(timer)
 
 	def getChannelNumber(self, service):
-		if service.ref and "0:0:0:0:0:0:0:0:0" not in service.ref.toString():
-			return service.ref.getChannelNum() or None
+		if not service.isPlayback:
+			return service.getChannelNum() or None
 		return None
 
 	def getEventRect(self):

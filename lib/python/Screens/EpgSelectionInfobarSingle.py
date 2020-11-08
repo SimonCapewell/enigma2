@@ -65,7 +65,7 @@ class EPGSelectionInfobarSingle(EPGSelectionBase, EPGServiceZap, EPGServiceBrows
 	def refreshList(self):
 		self.refreshTimer.stop()
 		service = self.getCurrentService()
-		self["Service"].newService(service.ref)
+		self["Service"].newService(service)
 		self.setTitle("%s - %s" % (self.getCurrentBouquetName(), service.getServiceName()))
 		index = self["list"].getCurrentIndex()
 		self["list"].fillEPG(service)

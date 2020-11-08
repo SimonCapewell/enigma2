@@ -60,7 +60,7 @@ class EPGListBase(GUIComponent):
 	def getEventFromId(self, service, eventId):
 		event = None
 		if self.epgcache is not None and eventId is not None:
-			event = self.epgcache.lookupEventId(service.ref, eventId)
+			event = self.epgcache.lookupEventId(service, eventId)
 		return event
 
 	def getIndexFromService(self, serviceref):

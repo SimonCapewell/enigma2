@@ -116,7 +116,7 @@ class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceNumberS
 		self["list"].fillEPG(self.services, time())
 		newEvent, service = list.getCurrent()
 		if oldEvent and newEvent and oldEvent.getEventId() == newEvent.getEventId():
-			if self.startRef and service and service.ref.toString() != self.startRef.toString():
+			if self.startRef and service and service.toString() != self.startRef.toString():
 				self.moveToService(self.startRef)
 			else:
 				self.toTop()
@@ -134,7 +134,7 @@ class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceNumberS
 		elif val == +1:
 			self.moveDown()
 		cur = list.getCurrent()
-		if cur[0] is None and cur[1].ref != old[1].ref:
+		if cur[0] is None and cur[1] != old[1]:
 			self.eventViewCallback(setEvent, setService, val)
 		else:
 			setService(cur[1])
