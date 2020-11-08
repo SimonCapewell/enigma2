@@ -3,7 +3,6 @@ from Components.ServiceList import refreshServiceList
 from Screens.InputBox import PinInput
 from Screens.MessageBox import MessageBox
 from Tools.BoundFunction import boundFunction
-from ServiceReference import ServiceReference
 from Tools import Notifications
 from Tools.Directories import resolveFilename, SCOPE_CONFIG
 from Tools.Notifications import AddPopup
@@ -74,7 +73,7 @@ class ParentalControl:
 				sRef = str(ref[0])
 				method( sRef , TYPE_BOUQUETSERVICE , *args )
 		else:
-			ref = ServiceReference(service)
+			ref = eServiceReference(service)
 			sRef = str(ref)
 			method( sRef , TYPE_SERVICE , *args )
 
@@ -115,9 +114,9 @@ class ParentalControl:
 				Notifications.RemovePopup("Parental control")
 				if self.PinDlg:
 					self.PinDlg.close()
-				self.PinDlg = session.openWithCallback(boundFunction(self.servicePinEntered, ref), PinInput, triesEntry=config.ParentalControl.retries.servicepin, pinList=self.getPinList(), service=ServiceReference(ref).getServiceName(), title=title, windowTitle=_("Parental control"), simple=False)
+				self.PinDlg = session.openWithCallback(boundFunction(self.servicePinEntered, ref), PinInput, triesEntry=config.ParentalControl.retries.servicepin, pinList=self.getPinList(), service=eServiceReference(ref).getServiceName(), title=title, windowTitle=_("Parental control"), simple=False)
 			else:
-				Notifications.AddNotificationParentalControl(boundFunction(self.servicePinEntered, ref), PinInput, triesEntry=config.ParentalControl.retries.servicepin, pinList=self.getPinList(), service=ServiceReference(ref).getServiceName(), title=title, windowTitle=_("Parental control"))
+				Notifications.AddNotificationParentalControl(boundFunction(self.servicePinEntered, ref), PinInput, triesEntry=config.ParentalControl.retries.servicepin, pinList=self.getPinList(), service=eServiceReference(ref).getServiceName(), title=title, windowTitle=_("Parental control"))
 			return False
 		else:
 			return True

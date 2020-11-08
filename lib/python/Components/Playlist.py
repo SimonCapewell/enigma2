@@ -1,4 +1,3 @@
-from ServiceReference import ServiceReference
 from enigma import eServiceReference
 import os
 
@@ -36,7 +35,7 @@ class PlaylistIO:
 				if entry.startswith(proto):
 					path = entry
 		ref = eServiceReference(4097, 0, path)
-		return ServiceReference(ref)
+		return eServiceReference(ref)
 
 class PlaylistIOInternal(PlaylistIO):
 	def __init__(self):
@@ -52,7 +51,7 @@ class PlaylistIOInternal(PlaylistIO):
 			entry = file.readline().strip()
 			if entry == "":
 				break
-			self.addService(ServiceReference(entry))
+			self.addService(eServiceReference(entry))
 		file.close()
 		return self.list
 
