@@ -37,7 +37,6 @@ from Components.Task import job_manager as JobManager
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 import Screens.Standby
-from ServiceReference import ServiceReference
 
 from RecordTimer import RecordTimerEntry, parseEvent
 from timer import TimerEntry
@@ -297,7 +296,7 @@ class InfoBarTimeshift:
 			if self.save_current_timeshift and self.timeshiftEnabled():
 				if config.recording.margin_after.value > 0 and len(self.recording) == 0:
 					self.SaveTimeshift(mergelater=True)
-					recording = RecordTimerEntry(ServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()), time(), time()+(config.recording.margin_after.value * 60), self.pts_curevent_name, self.pts_curevent_description, self.pts_curevent_eventid, dirname = config.usage.default_path.value)
+					recording = RecordTimerEntry(eServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()), time(), time()+(config.recording.margin_after.value * 60), self.pts_curevent_name, self.pts_curevent_description, self.pts_curevent_eventid, dirname = config.usage.default_path.value)
 					recording.dontSave = True
 					self.session.nav.RecordTimer.record(recording)
 					self.recording.append(recording)
@@ -919,7 +918,7 @@ class InfoBarTimeshift:
 						print "[Timeshift] %s" % errormsg
 
 	def ptsRecordCurrentEvent(self):
-		recording = RecordTimerEntry(ServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()), time(), self.pts_curevent_end, self.pts_curevent_name, self.pts_curevent_description, self.pts_curevent_eventid, dirname = config.usage.default_path.value)
+		recording = RecordTimerEntry(eServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()), time(), self.pts_curevent_end, self.pts_curevent_name, self.pts_curevent_description, self.pts_curevent_eventid, dirname = config.usage.default_path.value)
 		recording.dontSave = True
 		self.session.nav.RecordTimer.record(recording)
 		self.recording.append(recording)
@@ -1012,7 +1011,7 @@ class InfoBarTimeshift:
 	def ptsCreateEITFile(self, filename):
 		if self.pts_curevent_eventid is not None:
 			try:
-				serviceref = ServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()).ref
+				serviceref = eServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()).ref
 				eEPGCache.getInstance().saveEventToFile(filename+".eit", serviceref, self.pts_curevent_eventid, -1, -1)
 			except Exception, errormsg:
 				print "[Timeshift] %s" % errormsg

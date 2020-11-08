@@ -12,7 +12,6 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.InputBox import PinInput
-from ServiceReference import ServiceReference
 from Screens.TimerEntry import TimerEntry, TimerLog
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
@@ -342,7 +341,7 @@ class TimerEditList(Screen, ProtectedScreen):
 				event = info.getEvent(0)
 
 		# FIXME only works if already playing a service
-		serviceref = ServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup())
+		serviceref = eServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup())
 
 		if event is None:
 			data = (int(time()), int(time() + 60), "", "", None)

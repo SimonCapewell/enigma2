@@ -5,7 +5,6 @@ from enigma import eEPGCache
 
 from Screens.Screen import Screen
 import ChannelSelection
-from ServiceReference import ServiceReference
 from Components.config import config, ConfigSelection, ConfigText, ConfigYesNo
 from Components.SystemInfo import SystemInfo
 from Components.UsageConfig import defaultMoviePath, preferredTimerPath
@@ -144,7 +143,7 @@ class TimerEntry(TimerEntryBase):
 
 	def finishedChannelSelection(self, *args):
 		if args:
-			self.timerentry_service_ref = ServiceReference(args[0])
+			self.timerentry_service_ref = eServiceReference(args[0])
 			self.timerentry_service.setCurrentText(self.timerentry_service_ref.getServiceName())
 			self.invalidateConfigEntry(self.timerentry_service)
 
@@ -238,7 +237,7 @@ class TimerEntry(TimerEntryBase):
 					return
 				elif n > 0:
 					parent = self.timer.service_ref.ref
-					self.timer.service_ref = ServiceReference(event.getLinkageService(parent, 0))
+					self.timer.service_ref = eServiceReference(event.getLinkageService(parent, 0))
 
 		self.saveTimer()
 		self.close((True, self.timer))
@@ -257,7 +256,7 @@ class TimerEntry(TimerEntryBase):
 
 	def subserviceSelected(self, service):
 		if not service is None:
-			self.timer.service_ref = ServiceReference(service[1])
+			self.timer.service_ref = eServiceReference(service[1])
 		self.saveTimer()
 		self.close((True, self.timer))
 
