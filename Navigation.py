@@ -12,7 +12,6 @@ import RecordTimer
 import PowerTimer
 import Screens.Standby
 import NavigationInstance
-import ServiceReference
 from Screens.InfoBar import InfoBar, MoviePlayer
 from Components.Sources.StreamService import StreamServiceList
 

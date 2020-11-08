@@ -9,7 +9,6 @@ from Components.Sources.Boolean import Boolean
 from enigma import eDVBSatelliteEquipmentControl, eTimer, iPlayableService, eServiceCenter, iServiceInformation
 from Components.NimManager import nimmanager
 from Components.Sources.FrontendStatus import FrontendStatus
-from ServiceReference import ServiceReference
 
 INVALID_POSITION = 9999
 config.misc.lastrotorposition = ConfigInteger(INVALID_POSITION)

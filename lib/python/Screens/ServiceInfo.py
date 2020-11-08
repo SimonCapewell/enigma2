@@ -4,8 +4,7 @@ from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.config import config
 from Components.Sources.StaticText import StaticText
-from ServiceReference import ServiceReference
-from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformation, eServiceCenter, RT_HALIGN_LEFT, eDVBFrontendParametersSatellite
+from enigma import eListboxPythonMultiContent, eListbox, eServiceReference, gFont, iServiceInformation, eServiceCenter, RT_HALIGN_LEFT, eDVBFrontendParametersSatellite
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 import skin
 
@@ -162,7 +161,7 @@ class ServiceInfo(Screen):
 			if self.feinfo or self.transponder_info:
 				self["key_blue"].text = self["blue"].text = _("Tuner settings values")
 			if self.session.nav.getCurrentlyPlayingServiceOrGroup():
-				name = ServiceReference(self.session.nav.getCurrentlyPlayingServiceReference()).getServiceName()
+				name = eServiceReference(self.session.nav.getCurrentlyPlayingServiceReference()).getServiceName()
 				refstr = self.session.nav.getCurrentlyPlayingServiceReference().toString()
 				reftype = self.session.nav.getCurrentlyPlayingServiceReference().type
 			else:

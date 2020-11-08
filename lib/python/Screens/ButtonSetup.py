@@ -5,13 +5,11 @@ from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.SystemInfo import SystemInfo
 from Components.config import config, ConfigSubsection, ConfigText, ConfigYesNo
 from Components.PluginComponent import plugins
-from Components.Sources.StaticText import StaticText
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Plugins.Plugin import PluginDescriptor
 from Tools.BoundFunction import boundFunction
-from ServiceReference import ServiceReference
 from enigma import eServiceReference, eActionMap
 from Components.Label import Label
 
@@ -440,9 +438,9 @@ class InfoBarButtonSetup():
 		selected = []
 		for x in selection:
 			if x.startswith("ZapPanic"):
-				selected.append(((_("Panic to") + " " + ServiceReference(eServiceReference(x.split("/", 1)[1]).toString()).getServiceName()), x))
+				selected.append(((_("Panic to") + " " + eServiceReference(x.split("/", 1)[1]).getServiceName()), x))
 			elif x.startswith("Zap"):
-				selected.append(((_("Zap to") + " " + ServiceReference(eServiceReference(x.split("/", 1)[1]).toString()).getServiceName()), x))
+				selected.append(((_("Zap to") + " " + eServiceReference(x.split("/", 1)[1]).getServiceName()), x))
 			elif x:
 				function = next((function for function in getButtonSetupFunctions() if function[1] == x), None)
 				if function:

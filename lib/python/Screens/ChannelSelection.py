@@ -42,7 +42,6 @@ from Screens.ButtonSetup import InfoBarButtonSetup, helpableButtonSetupActionMap
 profile("ChannelSelection.py 4")
 from Screens.PictureInPicture import PictureInPicture
 from Screens.RdsDisplay import RassInteractive
-from ServiceReference import ServiceReference
 from Tools.BoundFunction import boundFunction
 from Tools import Notifications
 from Tools.Alternatives import GetWithAlternative
@@ -369,7 +368,7 @@ class ChannelContextMenu(Screen):
 	def getCurrentSelectionName(self):
 		cur = self.csel.getCurrentSelection()
 		if cur and cur.valid():
-			name = eServiceCenter.getInstance().info(cur).getName(cur) or ServiceReference(cur).getServiceName() or ""
+			name = eServiceCenter.getInstance().info(cur).getName(cur) or eServiceReference(cur).getServiceName() or ""
 			name = name.replace('\xc2\x86', '').replace('\xc2\x87', '')
 			return name
 		return ""
@@ -744,7 +743,7 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 		return selected
 
 	def RecordTimerQuestion(self):
-		serviceref = ServiceReference(self.getCurrentSelection())
+		serviceref = eServiceReference(self.getCurrentSelection())
 		refstr = ':'.join(serviceref.ref.toString().split(':')[:11])
 		test = ["ITX", (refstr, 1, -1, 1440) ] # search next 24 hours
 		list = eEPGCache.getInstance().lookupEvent(test)
@@ -819,7 +818,7 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 		self.session.open(TimerEntry, timer)
 
 	def doInstantTimer(self, zap, eventIndex=0):
-		serviceref = ServiceReference(self.getCurrentSelection())
+		serviceref = eServiceReference(self.getCurrentSelection())
 		refstr = ':'.join(serviceref.ref.toString().split(':')[:11])
 		epgCache = eEPGCache.getInstance()
 		test = ["ITX", (refstr, 1, -1, 1440)] # search next 24 hours
@@ -922,7 +921,7 @@ class ChannelSelectionEdit:
 		self.editMode = True
 		cur = self.getCurrentSelection()
 		if cur and cur.valid():
-			name = eServiceCenter.getInstance().info(cur).getName(cur) or ServiceReference(cur).getServiceName() or ""
+			name = eServiceCenter.getInstance().info(cur).getName(cur) or eServiceReference(cur).getServiceName() or ""
 			name = name.replace('\xc2\x86', '').replace('\xc2\x87', '')
 			if name:
 				self.session.openWithCallback(self.renameEntryCallback, VirtualKeyBoard, title=_("Please enter a new name:"), text=name)
@@ -964,9 +963,9 @@ class ChannelSelectionEdit:
 			cnt+=1
 
 	def addAlternativeServices(self):
-		cur_service = ServiceReference(self.getCurrentSelection())
+		cur_service = eServiceReference(self.getCurrentSelection())
 		root = self.getRoot()
-		cur_root = root and ServiceReference(root)
+		cur_root = root and eServiceReference(root)
 		mutableBouquet = cur_root.list().startEdit()
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
@@ -974,7 +973,7 @@ class ChannelSelectionEdit:
 			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
-			new_ref = ServiceReference((self.mode == MODE_TV and '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.tv" ORDER BY bouquet' or '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.radio" ORDER BY bouquet') % name)
+			new_ref = eServiceReference((self.mode == MODE_TV and '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.tv" ORDER BY bouquet' or '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.radio" ORDER BY bouquet') % name)
 			if not mutableBouquet.addService(new_ref.ref, cur_service.ref):
 				mutableBouquet.removeService(cur_service.ref)
 				mutableBouquet.flushChanges()
@@ -1037,17 +1036,17 @@ class ChannelSelectionEdit:
 			print "[ChannelSelection] bouquetlist is not editable"
 
 	def copyCurrentToBouquetList(self):
-		provider = ServiceReference(self.getCurrentSelection())
+		provider = eServiceReference(self.getCurrentSelection())
 		providerName = provider.getServiceName()
 		serviceHandler = eServiceCenter.getInstance()
 		services = serviceHandler.list(provider.ref)
 		self.addBouquet(providerName, services and services.getContent('R', True))
 
 	def removeAlternativeServices(self):
-		cur_service = ServiceReference(self.getCurrentSelection())
+		cur_service = eServiceReference(self.getCurrentSelection())
 		end = self.atEnd()
 		root = self.getRoot()
-		cur_root = root and ServiceReference(root)
+		cur_root = root and eServiceReference(root)
 		list = cur_service.list()
 		first_in_alternative = list and list.getNext()
 		if first_in_alternative:
@@ -1475,7 +1474,7 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 		return str
 
 	def getServiceName(self, ref):
-		str = ref.getName() or self.removeModeStr(ServiceReference(ref).getServiceName())
+		str = ref.getName() or self.removeModeStr(eServiceReference(ref).getServiceName())
 		if 'User - bouquets' in str:
 			return _('User - bouquets')
 
@@ -2979,7 +2978,7 @@ class HistoryZapSelector(Screen, HelpableScreen):
 
 			info = serviceHandler.info(x[-1])
 			if info:
-				orbpos = self.getOrbitalPos(ServiceReference(x[1]))
+				orbpos = self.getOrbitalPos(eServiceReference(x[1]))
 				serviceName = info.getName(x[-1])
 				if serviceName is None:
 					serviceName = ""
@@ -3013,7 +3012,7 @@ class HistoryZapSelector(Screen, HelpableScreen):
 						durationTime = _("%s - %s (%s%d min)") % (strftime(config.usage.time.short.value, local_begin), strftime(config.usage.time.short.value, local_end), prefix, remaining)
 
 			png = ""
-			picon = getPiconName(str(ServiceReference(x[1])))
+			picon = getPiconName(str(eServiceReference(x[1])))
 			if picon != "":
 				png = loadPNG(picon)
 			if self.invertItems:

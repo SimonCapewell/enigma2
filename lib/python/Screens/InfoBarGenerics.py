@@ -44,7 +44,7 @@ from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEdit import TimerEditList
 from Screens.TimerEntry import TimerEntry as addTimerFromEvent
 from Screens.UnhandledKey import UnhandledKey
-from ServiceReference import ServiceReference, isPlayableForCur
+from ServiceReference import isPlayableForCur
 
 from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT, findSafeRecordPath
 
@@ -390,7 +390,7 @@ class SecondInfoBar(Screen, HelpableScreen):
 			self.is_now_next = True
 		if epglist:
 			Event = self.epglist[0]
-			Ref = ServiceReference(ref)
+			Ref = eServiceReference(ref)
 			callback = self.eventViewCallback
 			self.cbFunc = callback
 			self.currentService = Ref
@@ -901,7 +901,7 @@ class NumberZap(Screen):
 	def handleServiceName(self):
 		if self.searchNumber:
 			self.service, self.bouquet = self.searchNumber(int(self["number"].getText()))
-			self["servicename"].setText(ServiceReference(self.service).getServiceName())
+			self["servicename"].setText(eServiceReference(self.service).getServiceName())
 			self["Service"].newService(self.service)
 			if not self.startBouquet:
 				self.startBouquet = self.bouquet
@@ -914,7 +914,7 @@ class NumberZap(Screen):
 				self.service, self.bouquet = self.searchNumber(int(self["number"].getText()), firstBouquetOnly = True)
 			else:
 				self.service, self.bouquet = self.searchNumber(int(self["number"].getText()))
-			self["servicename"].setText(ServiceReference(self.service).getServiceName())
+			self["servicename"].setText(eServiceReference(self.service).getServiceName())
 			self["Service"].newService(self.service)
 
 	def keyNumberGlobal(self, number):
@@ -1716,7 +1716,7 @@ class InfoBarEPG:
 					break
 				if service.flags & (eServiceReference.isDirectory | eServiceReference.isMarker): #ignore non playable services
 					continue
-				services.append(ServiceReference(service))
+				services.append(eServiceReference(service))
 		return services
 
 	def multiServiceEPG(self, type, showBouquet):
@@ -1846,9 +1846,9 @@ class InfoBarEPG:
 				self.eventView = None
 
 			if not simple:
-				self.eventView = self.session.openWithCallback(eventViewClosed, EventViewEPGSelect, epglist[0], ServiceReference(ref), self.eventViewCallback, self.openSingleServiceEPG, self.openMultiServiceEPG, self.openSimilarList)
+				self.eventView = self.session.openWithCallback(eventViewClosed, EventViewEPGSelect, epglist[0], eServiceReference(ref), self.eventViewCallback, self.openSingleServiceEPG, self.openMultiServiceEPG, self.openSimilarList)
 			else:
-				self.eventView = self.session.openWithCallback(eventViewClosed, EventViewSimple, epglist[0], ServiceReference(ref))
+				self.eventView = self.session.openWithCallback(eventViewClosed, EventViewSimple, epglist[0], eServiceReference(ref))
 
 	def eventViewCallback(self, setEvent, setService, val): #used for now/next displaying
 		epglist = self.epglist
@@ -3186,7 +3186,7 @@ class InfoBarInstantRecord:
 				self.session.open(MessageBox, _("No event info found, recording indefinitely."), MessageBox.TYPE_INFO, simple=True)
 
 		if isinstance(serviceref, eServiceReference):
-			serviceref = ServiceReference(serviceref)
+			serviceref = eServiceReference(serviceref)
 
 		recording = RecordTimerEntry(serviceref, begin, end, info["name"], info["description"], info["eventid"], dirname = preferredInstantRecordPath())
 		recording.dontSave = True
