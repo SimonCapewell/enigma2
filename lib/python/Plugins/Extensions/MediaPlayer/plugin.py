@@ -3,9 +3,8 @@ from time import strftime
 import random
 from boxbranding import getMachineBrand, getMachineName
 
-from enigma import iPlayableService, eTimer, eServiceCenter, iServiceInformation, ePicLoad
+from enigma import eServiceReference, iPlayableService, eTimer, eServiceCenter, iServiceInformation, ePicLoad
 
-from ServiceReference import ServiceReference
 from Screens.Screen import Screen
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -305,7 +304,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 		if answer:
 			self.playlistIOInternal.clear()
 			for x in self.playlist.list:
-				self.playlistIOInternal.addService(ServiceReference(x[0]))
+				self.playlistIOInternal.addService(eServiceReference(x[0]))
 			if self.savePlaylistOnExit:
 				try:
 					self.playlistIOInternal.save(resolveFilename(SCOPE_CONFIG, "playlist.e2pls"))
@@ -664,10 +663,9 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 
 	def showEventInformation(self):
 		from Screens.EventView import EventViewSimple
-		from ServiceReference import ServiceReference
 		evt = self[self.currList].getCurrentEvent()
 		if evt:
-			self.session.open(EventViewSimple, evt, ServiceReference(self.getCurrent()))
+			self.session.open(EventViewSimple, evt, eServiceReference(self.getCurrent()))
 
 	# also works on filelist (?)
 	def getCurrent(self):
@@ -706,7 +704,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 			name += ".e2pls"
 			self.playlistIOInternal.clear()
 			for x in self.playlist.list:
-				self.playlistIOInternal.addService(ServiceReference(x[0]))
+				self.playlistIOInternal.addService(eServiceReference(x[0]))
 			self.playlistIOInternal.save(resolveFilename(SCOPE_PLAYLIST) + name)
 
 	def get_playlists(self):

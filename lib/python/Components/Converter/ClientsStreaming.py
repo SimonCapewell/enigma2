@@ -2,8 +2,7 @@ from Converter import Converter
 from Poll import Poll
 from Components.Element import cached
 from Components.Sources.StreamService import StreamServiceList
-from enigma import eStreamServer
-from ServiceReference import ServiceReference
+from enigma import eServiceReference, eStreamServer
 import socket
 
 class ClientsStreaming(Converter, Poll, object):
@@ -63,7 +62,7 @@ class ClientsStreaming(Converter, Poll, object):
 
 		for x in self.streamServer.getConnectedClients():
 			refs.append((x[1]))
-			servicename = ServiceReference(x[1]).getServiceName() or "(unknown service)"
+			servicename = eServiceReference(x[1]).getServiceName() or "(unknown service)"
 			service_name = servicename
 			names.append((service_name))
 			ip = x[0]

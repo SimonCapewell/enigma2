@@ -33,8 +33,7 @@ class DVDTitle:
 
 	def addService(self, service):
 		from os import path
-		from enigma import eServiceCenter, iServiceInformation
-		from ServiceReference import ServiceReference
+		from enigma import eServiceCenter, eServiceReference, iServiceInformation
 		from time import localtime
 
 		self.source = service
@@ -45,7 +44,7 @@ class DVDTitle:
 		sTimeCreate = info.getInfo(service, iServiceInformation.sTimeCreate)
 		if sTimeCreate > 1:
 			self.timeCreate = localtime(sTimeCreate)
-		serviceref = ServiceReference(info.getInfoString(service, iServiceInformation.sServiceref))
+		serviceref = eServiceReference(info.getInfoString(service, iServiceInformation.sServiceref))
 		name = info and info.getName(service) or "Title" + sDescr
 		self.DVBname = name
 		self.DVBchannel = serviceref.getServiceName()

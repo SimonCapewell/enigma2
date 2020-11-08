@@ -12,10 +12,9 @@ from Components.Label import Label
 from Components.SelectionList import SelectionList
 from Components.MenuList import MenuList
 from Components.SystemInfo import SystemInfo
-from ServiceReference import ServiceReference
 from Plugins.Plugin import PluginDescriptor
 from xml.etree.cElementTree import parse
-from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
+from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter, eServiceReference
 from Tools.BoundFunction import boundFunction
 from Tools.CIHelper import cihelper
 from Tools.XMLTools import stringToXML
@@ -214,7 +213,7 @@ class CIconfigMenu(Screen):
 		if item > 0:
 			if item > 2 and args[2] is True:
 				for ref in args[0]:
-					service_ref = ServiceReference(ref)
+					service_ref = eServiceReference(ref)
 					service_name = service_ref.getServiceName()
 					if len(service_name) and find_in_list(self.servicelist, service_name, 0) == False:
 						str_service = service_ref.ref.toString()
@@ -226,7 +225,7 @@ class CIconfigMenu(Screen):
 			else:
 				ref = args[0]
 				if ref:
-					service_ref = ServiceReference(ref)
+					service_ref = eServiceReference(ref)
 					service_name = service_ref.getServiceName()
 					if find_in_list(self.servicelist, service_name, 0) == False:
 						str_service = service_ref.ref.toString()
@@ -241,7 +240,7 @@ class CIconfigMenu(Screen):
 		if item > 1:
 			if item > 2 and args[2] is True:
 				for ref in args[0]:
-					service_ref = ServiceReference(ref)
+					service_ref = eServiceReference(ref)
 					service_name = service_ref.getServiceName()
 					if len(service_name) and find_in_list(self.servicelist, service_name, 0) == False:
 						split_ref = service_ref.ref.toString().split(":")
