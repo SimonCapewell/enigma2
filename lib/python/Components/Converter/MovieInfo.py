@@ -1,7 +1,6 @@
 from Components.Converter.Converter import Converter
-from Components.Element import cached, ElementError
+from Components.Element import cached
 from enigma import iServiceInformation, eServiceReference
-from ServiceReference import ServiceReference
 
 class MovieInfo(Converter, object):
 	MOVIE_SHORT_DESCRIPTION = 0  # meta description when available.. when not .eit short description
@@ -89,10 +88,10 @@ class MovieInfo(Converter, object):
 				)
 			elif self.type == self.MOVIE_REC_SERVICE_NAME:
 				rec_ref_str = info.getInfoString(service, iServiceInformation.sServiceref)
-				return ServiceReference(rec_ref_str).getServiceName()
+				return eServiceReference(rec_ref_str).getServiceName()
 			elif self.type == self.MOVIE_REC_SERVICE_REF:
 				rec_ref_str = info.getInfoString(service, iServiceInformation.sServiceref)
-				return str(ServiceReference(rec_ref_str))
+				return str(eServiceReference(rec_ref_str))
 			elif self.type == self.MOVIE_REC_FILESIZE:
 				if (service.flags & eServiceReference.flagDirectory) == eServiceReference.flagDirectory:
 					return _("Directory")

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from Components.Converter.Converter import Converter
-from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceCenter
+from enigma import eServiceReference, iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceCenter
 from Components.Element import cached
-from ServiceReference import resolveAlternate,  ServiceReference
-from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
-from Components.NimManager import nimmanager
+from ServiceReference import resolveAlternate
+from Tools.Transponder import ConvertToHumanReadable
 import Screens.InfoBar
 
 class TransponderInfo(Converter, object):
@@ -62,7 +61,7 @@ class TransponderInfo(Converter, object):
 	def rootBouquet(self):
 		servicelist = Screens.InfoBar.InfoBar.instance.servicelist
 		epg_bouquet = servicelist and servicelist.getRoot()
-		if ServiceReference(epg_bouquet).getServiceName():
+		if eServiceReference(epg_bouquet).getServiceName():
 			return False
 		return True
 
