@@ -459,6 +459,8 @@ class PowerTimer(timer.Timer):
 				# Remove old timers as set in config
 				self.cleanupDaily(config.recording.keep_timers.value, config.recording.keep_finished_timer_logs.value)
 				insort(self.processed_timers, w)
+				if dosave:
+					self.saveTimer()
 		self.stateChanged(w)
 		if dosave:
 			self.saveTimer()
