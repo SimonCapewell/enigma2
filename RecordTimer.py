@@ -13,6 +13,7 @@ import Screens.Standby
 import Screens.InfoBar
 import Components.ParentalControl
 from Tools import Directories, Notifications, ASCIItranslit, Trashcan
+from Tools.Debounce import debounce
 from Tools.XMLTools import stringToXML
 
 import timer
@@ -1066,6 +1067,7 @@ class RecordTimer(timer.Timer):
 			from Screens.MessageBox import MessageBox
 			AddPopup(_("Timer overlap in timers.xml detected!\nPlease recheck it!") + timer_text, type = MessageBox.TYPE_ERROR, timeout = 0, id = "TimerLoadFailed")
 
+	@debounce(5000)
 	def saveTimer(self):
 		afterEvents = {
 			AFTEREVENT.NONE: "nothing",
@@ -1394,7 +1396,7 @@ class RecordTimer(timer.Timer):
 		self.saveTimer()
 
 	def shutdown(self):
-		self.saveTimer()
+		self.saveTimer(immediate=True)
 
 	def cleanup(self):
 		timer.Timer.cleanup(self)
