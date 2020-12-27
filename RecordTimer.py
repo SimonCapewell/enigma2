@@ -161,6 +161,13 @@ def RecordingsState(alter):
 
 RecordingsState(0)       # Initialize
 
+@debounce(5000)
+def cleanTrashcan():
+	# Give the Trashcan a chance to clean up
+	global n_recordings
+	if n_recordings == 0:
+		Trashcan.clean()
+
 # type 1 = digital television service
 # type 4 = nvod reference service (NYI)
 # type 17 = MPEG-2 HD digital television service
@@ -509,14 +516,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 				# here than calculateFilename is happy
 				if not self.justplay:
 					open(self.Filename + self.record_service.getFilenameExtension(), "w").close()
-					# Give the Trashcan a chance to clean up
-					# Need try/except as Trashcan.instance may not exist
-					# for a missed recording started at boot-time.
-					try:
-						Trashcan.instance.cleanIfIdle()
-					except Exception, e:
-						print "[RecordTimer] Failed to call Trashcan.instance.cleanIfIdle()"
-						print "[RecordTimer] Error:", e
+					cleanTrashcan()
 				# fine. it worked, resources are allocated.
 				self.next_activation = self.begin
 				self.backoff = 0
@@ -660,6 +660,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 				if self.record_service:
 					NavigationInstance.instance.stopRecordService(self.record_service)
 					self.record_service = None
+					cleanTrashcan()
 
 # From here on we are checking whether to put the box into Standby or
 # Deep Standby.

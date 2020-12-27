@@ -25,9 +25,9 @@ def getTrashFolder(path=None):
 		return None
 
 def createTrashFolder(path=None):
-	print '[TRASHCAN DeBug path]', path
+	print('[Trashcan] Debug path %s' % path)
 	trash = getTrashFolder(path)
-	print '[TRASHCAN DeBug]', trash
+	print('[Trashcan] Debug %s' % trash)
 	if trash and os.access(os.path.split(trash)[0], os.W_OK):
 		if not os.path.isdir(trash):
 			try:
@@ -50,43 +50,14 @@ def get_size(start_path = '.'):
 					pass
 	return total_size
 
-class Trashcan:
-	def __init__(self, session):
-		self.session = session
-		session.nav.record_event.append(self.gotRecordEvent)
-		self.gotRecordEvent(None, None)
-
-	def gotRecordEvent(self, service, event):
-		from RecordTimer import n_recordings
-		if event == enigma.iRecordableService.evEnd:
-			self.cleanIfIdle()
-
-	def destroy(self):
-		if self.session is not None:
-			self.session.nav.record_event.remove(self.gotRecordEvent)
-		self.session = None
-
-	def __del__(self):
-		self.destroy()
-
-	def cleanIfIdle(self):
-		# RecordTimer calls this when preparing a recording. That is a
-		# nice moment to clean up.
-		from RecordTimer import n_recordings
-		if n_recordings > 0:
-			print "[Trashcan] Recording(s) in progress:", n_recordings
-			return
-# If movielist_trashcan_days is 0 it means don't timeout anything - 
-# just use the "leave nGB settting"
-#
-		if (config.usage.movielist_trashcan_days.value > 0):
+def clean(ctimeLimit=None, reserveBytes=None):
+	if ctimeLimit is None:
+		if config.usage.movielist_trashcan_days.value > 0:
 			ctimeLimit = time.time() - (config.usage.movielist_trashcan_days.value * 3600 * 24)
 		else:
 			ctimeLimit = 0
+	if reserveBytes is None:
 		reserveBytes = 1024*1024*1024 * int(config.usage.movielist_trashcan_reserve.value)
-		clean(ctimeLimit, reserveBytes)
-
-def clean(ctimeLimit, reserveBytes):
 	isCleaning = False
 	for job in Components.Task.job_manager.getPendingJobs():
 		jobname = str(job.name)
@@ -101,9 +72,9 @@ def clean(ctimeLimit, reserveBytes):
 		task.openFiles(ctimeLimit, reserveBytes)
 		Components.Task.job_manager.AddJob(job)
 	elif isCleaning:
-		print "[Trashcan] Cleanup already running"
+		print("[Trashcan] Cleanup already running")
 	else:
-		print "[Trashcan] Disabled skipping check."
+		print("[Trashcan] Disabled skipping check.")
 
 def cleanAll(path=None):
 	trash = getTrashFolder(path)
@@ -125,8 +96,7 @@ def cleanAll(path=None):
 				pass
 
 def init(session):
-	global instance
-	instance = Trashcan(session)
+	pass
 
 class CleanTrashTask(Components.Task.PythonTask):
 	def openFiles(self, ctimeLimit, reserveBytes):
