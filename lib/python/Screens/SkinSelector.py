@@ -160,7 +160,8 @@ class SkinSelector(Screen, HelpableScreen):
 				self.close()
 			else:
 				print("[SkinSelector] Selected skin: '%s' (Trying to restart again!)" % pathjoin(self.rootDir, skin))
-				restartBox = self.session.openWithCallback(self.restartGUI, MessageBox, _("To apply the selected '%s' skin the GUI needs to restart. Would you like to restart the GUI now?") % label, MessageBox.TYPE_YESNO)
+				list = [(_("apply without rebooting (experimental)"), "apply"), (_("yes"), True), (_("no"), False)]
+				restartBox = self.session.openWithCallback(self.restartGUI, MessageBox, _("To apply the selected '%s' skin the GUI needs to restart. Would you like to restart the GUI now?") % label, list=list)
 				restartBox.setTitle(_("SkinSelector: Restart GUI"))
 		elif skin == self.currentSkin:
 			print("[SkinSelector] Selected skin: '%s' (Pending skin '%s' cancelled!)" % (pathjoin(self.rootDir, skin), pathjoin(self.rootDir, self.config.value)))
@@ -169,15 +170,26 @@ class SkinSelector(Screen, HelpableScreen):
 			self.close()
 		else:
 			print("[SkinSelector] Selected skin: '%s'" % pathjoin(self.rootDir, skin))
-			restartBox = self.session.openWithCallback(self.restartGUI, MessageBox, _("To save and apply the selected '%s' skin the GUI needs to restart. Would you like to save the selection and restart the GUI now?") % label, MessageBox.TYPE_YESNO)
+			list = [(_("apply without rebooting (experimental)"), "apply"), (_("yes"), True), (_("no"), False)]
+			restartBox = self.session.openWithCallback(self.restartGUI, MessageBox, _("To apply the selected '%s' skin the GUI needs to restart. Would you like to restart the GUI now?") % label, list=list)
 			restartBox.setTitle(_("SkinSelector: Restart GUI"))
 
 	def restartGUI(self, answer):
-		if answer is True:
+		if answer is not False:
 			self.config.value = self.currentEntry[4]
+		skin = self["skins"].getCurrent()[4]
+		if answer == "apply":
+			self.hide()
+			self.config.value = skin
+			self.config.save()
+			self.session.reloadSkin()
+ 			self.close()
+		elif answer is True:
 			self.config.save()
 			self.session.open(TryQuitMainloop, QUIT_RESTART)
-		self.refreshList()
+			self.refreshList()
+		else:
+			self.refreshList()
 
 	def keyTop(self):
 		self["skins"].moveTop()
