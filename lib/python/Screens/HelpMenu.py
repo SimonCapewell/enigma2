@@ -21,6 +21,10 @@ class HelpMenu(Screen, Rc):
 			"ok": self["list"].ok,
 			"back": self.close,
 		}, -1)
+		self["helpactions"] = ActionMap(["HelpActions"],
+		{
+			"displayHelp": self.toggleKeyHelp
+		}, -1)
 
 		self.onLayoutFinish.append(self.SelectionChanged)
 
@@ -46,6 +50,9 @@ class HelpMenu(Screen, Rc):
 		#	arrow.moveTo(selection[1], selection[2], 1)
 		#	arrow.startMoving()
 		#	arrow.show()
+
+	def toggleKeyHelp(self):
+		self["list"].toggleKeyHelp()
 
 class HelpableScreen:
 	def __init__(self):
